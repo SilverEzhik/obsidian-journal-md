@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "journal-md",
+	"name": "Journal.md",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Manages your Journal.md file",
+	"author": "Ezhik",
+	"authorUrl": "https://ezhik.me",
+	"fundingUrl": "https://ezhik.me",
 	"isDesktopOnly": false
 }
