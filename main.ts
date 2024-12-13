@@ -1,4 +1,4 @@
-import { App, Notice, Plugin, PluginSettingTab, Setting, SuggestModal } from 'obsidian';
+import { App, Notice, Plugin, PluginSettingTab, Setting, SuggestModal, TFile } from 'obsidian';
 
 interface JournalMdSettings {
 	automaticDateHeadings: boolean;
@@ -41,33 +41,48 @@ export default class JournalMd extends Plugin {
 
 	async openJournalNote() {
 		const note = await this.getJournalNote();
+		console.log(`Opening ${note}`);
 		this.app.workspace.getLeaf(false).openFile(note);
 	}
 
-	async insertDateHeading() {
+	async insertDateHeading(): Promise<TFile> {
 		const note = await this.getJournalNote();
 		const date = window.moment().locale(this.locale).format(this.settings.headingDateFormat);
+		console.log(`Inserting date heading ${JSON.stringify(date)}`);
 
 		const headings = this.app.metadataCache.getFileCache(note)?.headings ?? [];
 		const firstHeading = headings[0];
 
 		if (firstHeading?.heading === date && firstHeading?.level === 1) {
-			return;
+			return note;
 		}
 
-		const heading = `# ${date}\n`;
+		const heading = `# ${date}`;
 		const content = await this.app.vault.read(note);
 
 		// for all we know the file was changed outside of Obsidian so let's play it safe
 		if (content.startsWith(heading)) {
-			return;
+			return note;
 		}
 
-		await this.app.vault.modify(note, `${heading}${content}`);
+		await this.app.vault.modify(note, `${heading}\n\n${content}`);
+
+		return new Promise((resolve) => {
+			console.log(`Waiting for cache update`);
+			const cb = (file: TFile) => {
+				console.log(`Cache updated`);
+				if (file === note) {
+					this.app.metadataCache.off("changed", cb);
+					resolve(file);
+				}
+			};
+			this.app.metadataCache.on("changed", cb);
+		});
 	}
 
 	async appendToLastEntry(text: string) {
-		const note = await this.getJournalNote();
+		console.log("Will append to last entry");
+		const note = await this.insertDateHeading();
 		const cache = this.app.metadataCache.getFileCache(note);
 		const headings = cache?.headings;
 		let offset = headings?.[1]?.position?.start?.offset;

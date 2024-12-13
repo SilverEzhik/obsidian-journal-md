@@ -1,6 +1,6 @@
 {
 	"name": "journal-md",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Manages your Obsidian Journal.md file",
 	"main": "main.js",
 	"scripts": {
